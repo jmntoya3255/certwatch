@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="card">
+  <h2>Agregar sitio al inventario</h2>
+  <form method="POST" action="{{ url_for('add') }}" class="inline-form">
+    <input type="text" name="label" placeholder="Nombre (ej: Portal Clientes)" required>
+    <input type="text" name="hostname" placeholder="URL o host (ej: https://miweb.com o miweb.com:8443)" required>
+    <button type="submit">Agregar</button>
+  </form>
+</section>
+
+<section class="card">
+  <div class="section-header">
+    <h2>Inventario de sitios ({{ sites|length }})</h2>
+    <form method="POST" action="{{ url_for('check_now') }}">
+      <button type="submit" class="btn-primary">Revisar ahora y enviar correo</button>
+    </form>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Sitio</th>
+        <th>Host:Puerto</th>
+        <th>Último chequeo</th>
+        <th>Vencimiento</th>
+        <th>Días restantes</th>
+        <th>Estado</th>
+        <th>Activo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sites %}
+      <tr>
+        <td>{{ s.label }}</td>
+        <td>{{ s.hostname }}:{{ s.port }}</td>
+        <td>{{ s.checked_at or '-' }}</td>
+        <td>{{ s.expiry_date or '-' }}</td>
+        <td>{{ s.days_remaining if s.days_remaining is not none else '-' }}</td>
+        <td>
+          <span class="badge badge-{{ s.status or 'desconocido' }}">
+            {{ s.status or 'sin datos' }}
+          </span>
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('toggle', site_id=s.id, active=0 if s.active else 1) }}">
+            <button type="submit" class="btn-small">{{ 'Sí' if s.active else 'No' }}</button>
+          </form>
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('delete', site_id=s.id) }}"
+                onsubmit="return confirm('¿Eliminar este sitio?');">
+            <button type="submit" class="btn-danger">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8">No hay sitios registrados todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% endblock %}

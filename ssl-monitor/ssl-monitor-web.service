@@ -1,0 +1,15 @@
+[Unit]
+Description=Panel web - Monitor de Certificados SSL
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/ssl-monitor
+EnvironmentFile=/opt/ssl-monitor/.env
+ExecStart=/opt/ssl-monitor/venv/bin/python3 /opt/ssl-monitor/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
